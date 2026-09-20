@@ -1,4 +1,9 @@
 using DotNetEnv;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using GetInLineSchool.Repositories;
+using GetInLineSchool.Services;
+using Microsoft.AspNetCore.Mvc;
 
 Env.Load();
 
@@ -9,6 +14,29 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+builder.Services.AddScoped<SchoolRepository>();
+builder.Services.AddScoped<SchoolService>();
+
+//catches validation errors
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        var errors = context.ModelState
+        .Where(x => x.Value!.Errors.Any())
+        .SelectMany(x => x.Value!.Errors.Select(e => new Error
+        {
+            Key = "Validation",
+            Message = e.ErrorMessage
+        })).ToList();
+
+        return new BadRequestObjectResult(ServiceResult<object>.Failure(null, errors));
+    };
+});
+
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 var app = builder.Build();
 
