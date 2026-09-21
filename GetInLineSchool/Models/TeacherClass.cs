@@ -4,7 +4,7 @@
     {
         public int IDTeacher { get; set; }
         public int IDClass { get; set; }
-        public string Subject { get; set; } = string.Empty;
+        public string Subject { get; set; }
         public bool IsActive { get; set; }
     }
 }
