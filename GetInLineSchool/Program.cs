@@ -17,6 +17,8 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddScoped<SchoolRepository>();
 builder.Services.AddScoped<SchoolService>();
+builder.Services.AddScoped<TeacherRepository>();
+builder.Services.AddScoped<TeacherService>();
 
 //catches validation errors
 builder.Services.Configure<ApiBehaviorOptions>(options =>
