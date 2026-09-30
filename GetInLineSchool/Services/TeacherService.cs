@@ -27,7 +27,7 @@ namespace GetInLineSchool.Services
             if (result > 0)
                 return -1;
 
-            string hashedPassword = HelperService.HashPassword(teacher.Password);
+            string hashedPassword = HashingService.Hash(teacher.Password);
             teacher.Password = hashedPassword;
 
             return await _repository.CreateTeacherAsync(teacher);
