@@ -20,7 +20,11 @@ namespace GetInLineSchool.Controllers
                 var result = await _service.CreateTeacherAsync(teacher);
 
                 if (result == 1)
+                {
+                    await HelperService.SendEmail(teacher.Email, "Потвърждение на регистрацията и верификационен код", teacher.Username);
+
                     return Ok(ServiceResult<Teacher>.Success(null));
+                }
                 if (result == 0) 
                     return BadRequest(ServiceResult<Teacher>.Failure(null, new List<Error>() { new Error { Key = "School", Message = "School not found." } }));
                 if (result == -1)
