@@ -3,7 +3,7 @@
     public class SignUpCode
     {
         public int IDCode { get; set; }
-        public int CodeValue { get; set; }
+        public string Code { get; set; }
         public short IDSchool { get; set; }
         public int IDTeacher { get; set; }
         public byte CodeType { get; set; }
