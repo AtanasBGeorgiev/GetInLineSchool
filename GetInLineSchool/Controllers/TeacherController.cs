@@ -1,8 +1,8 @@
-﻿using GetInLineSchool.Services;
-using Microsoft.AspNetCore.Mvc;
+﻿using GetInLineSchool.DTOs.Request;
 using GetInLineSchool.Models;
-using System.Linq.Expressions;
-using Microsoft.Data.SqlClient;
+using GetInLineSchool.Services;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace GetInLineSchool.Controllers
 {
@@ -13,30 +13,33 @@ namespace GetInLineSchool.Controllers
         private readonly TeacherService _service = new TeacherService();
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] Teacher teacher)
+        public async Task<IActionResult> Create([FromBody] CreateTeacherRequest teacher)
         {
-            try
+            //Only admin can create director
+            string role = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            if (teacher.Role == 2 && role != "1")
+                return Unauthorized(ServiceResult<Teacher>.Failure(null, new List<Error>() { new Error { Key = "Authorization", Message = "You have not permission to create a director." } }));
+           
+            var result = (teacher.Role == 2 && role == "1") ?
+                await _service.CreateTeacherAsync(teacher, true) :
+                await _service.CreateTeacherAsync(teacher);
+
+            if (result.Code == Services.StatusCodes.Created)
             {
-                var result = await _service.CreateTeacherAsync(teacher);
+                var emailResult = await HelperService.SendEmail(teacher.Email, "Потвърждение на регистрацията и верификационен код", teacher.Username);
 
-                if (result == 1)
-                {
-                    await HelperService.SendEmail(teacher.Email, "Потвърждение на регистрацията и верификационен код", teacher.Username);
+                if (emailResult.Code == Services.StatusCodes.Success)
+                    return StatusCode(201, ServiceResult<Teacher>.Success(null));
 
-                    return Ok(ServiceResult<Teacher>.Success(null));
-                }
-                if (result == 0) 
-                    return BadRequest(ServiceResult<Teacher>.Failure(null, new List<Error>() { new Error { Key = "School", Message = "School not found." } }));
-                if (result == -1)
-                    return Conflict(ServiceResult<Teacher>.Failure(null, new List<Error>() { new Error { Key = "Global", Message = "Unique fields violation." } }));
-
-                return StatusCode(500, ServiceResult<Teacher>.Failure(null, new List<Error>() { new Error { Key = "Global", Message = "Failed to create teacher." } }));
+                return StatusCode(500, ServiceResult<Teacher>.Failure(null, new List<Error>() { new Error { Key = "Global", Message = "User is created successfully but " + emailResult.Message } }));     
             }
-            catch (SqlException ex)
-            {
-                return Conflict(ServiceResult<Teacher>.Failure(null, new List<Error>() { new Error { Key = "SQL", Message = "SQL add teacher exception" } }));
-            }
-            
+
+            return result.Code == Services.StatusCodes.NotFound ?
+                NotFound(ServiceResult<Teacher>.Failure(null, new List<Error>() { new Error { Key = "School", Message = result.Message } }))
+            : result.Code == Services.StatusCodes.Conflict ?
+                Conflict(ServiceResult<Teacher>.Failure(null, new List<Error>() { new Error { Key = "Global", Message = result.Message } }))
+            : StatusCode(500, ServiceResult<Teacher>.Failure(null, new List<Error>() { new Error { Key = "Global", Message = result.Message } }));
         }
     }
 }
