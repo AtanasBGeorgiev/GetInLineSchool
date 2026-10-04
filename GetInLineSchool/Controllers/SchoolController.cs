@@ -1,7 +1,8 @@
 ﻿using GetInLineSchool.Models;
 using GetInLineSchool.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
+using GetInLineSchool.DTOs.Request;
 
 namespace GetInLineSchool.Controllers
 {
@@ -11,30 +12,18 @@ namespace GetInLineSchool.Controllers
     public class SchoolController : ControllerBase
     {
         private readonly SchoolService _service = new SchoolService();
-        
+
         [HttpPost]
-        public async Task<IActionResult>Create([FromBody] School school)
+        [Authorize(Policy = "Admin")]
+        public async Task<IActionResult> Create([FromBody] CreateSchoolRequest school)
         {
-            try
-            {
-                var result = await _service.CreateSchoolAsync(school);
+            var result = await _service.CreateSchoolAsync(school);
 
-                if (result == -1)
-                {
-                    return Conflict(ServiceResult<School>.Failure(null, new List<Error>() { new Error { Key = "Global", Message = "Unique fields violation." } }));
-                }
-                if (result == 0)
-                {
-                    return StatusCode(500, ServiceResult<School>.Failure(null, new List<Error>() { new Error { Key = "Global", Message = "Failed to create school." } }));
-                }
-
-                return Ok(ServiceResult<School>.Success(school));
-            }
-            catch (SqlException ex)
-            {
-                return Conflict(ServiceResult<School>.Failure(null, new List<Error>() { new Error { Key = "SQL", Message = "SQL exception." } }));
-            }
-            
+            return result == Services.StatusCodes.Conflict ?
+                Conflict(ServiceResult<School>.Failure(null, new List<Error>() { new Error { Key = "Global", Message = "Unique fields violation." } }))
+            : result == Services.StatusCodes.ServerError ?
+            StatusCode(500, ServiceResult<School>.Failure(null, new List<Error>() { new Error { Key = "Global", Message = "Failed to create school." } }))
+            : StatusCode(201, (ServiceResult<School>.Success(null)));
         }
     }
 }

@@ -1,9 +1,10 @@
 ﻿using FluentValidation;
+using GetInLineSchool.DTOs.Request;
 using GetInLineSchool.Models;
 
 namespace GetInLineSchool.Validators
 {
-    public class TeacherValidator : AbstractValidator<Teacher>
+    public class TeacherValidator : AbstractValidator<CreateTeacherRequest>
     {
         public TeacherValidator()
         {

@@ -1,5 +1,6 @@
 ﻿using GetInLineSchool.Repositories;
 using GetInLineSchool.Models;
+using GetInLineSchool.DTOs.Request;
 
 namespace GetInLineSchool.Services
 {
@@ -7,11 +8,11 @@ namespace GetInLineSchool.Services
     {
         private readonly SchoolRepository _repository = new SchoolRepository();
 
-        public async Task<int> CreateSchoolAsync(School school)
+        public async Task<StatusCodes> CreateSchoolAsync(CreateSchoolRequest school)
         {
             if (await _repository.CheckUniqueFields(school) > 0)
             {
-                return -1;
+                return StatusCodes.Conflict;
             }
 
             List<int> codes = await _repository.GetSchoolCodes();
@@ -28,7 +29,16 @@ namespace GetInLineSchool.Services
 
             school.SchoolCode = code;
 
-            return await _repository.CreateSchoolAsync(school);
+            try
+            {
+                var rows = await _repository.CreateSchoolAsync(school);
+                return rows > 0 ? StatusCodes.Created : StatusCodes.ServerError;
+            }
+            catch(Exception ex)
+            {
+                return StatusCodes.ServerError;
+            }
+            
         }
     }
 }

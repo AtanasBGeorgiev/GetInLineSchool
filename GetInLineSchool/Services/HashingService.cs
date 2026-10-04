@@ -6,7 +6,7 @@ namespace GetInLineSchool.Services
 {
     public class HashingService
     {
-        private const int _saltSize = 16; // 128 bit
+        private const int _saltSize = 13; // 104 bit
         private const int _hashSize = 32; // 256 bit
         private const int _degreeOfParallelism = 4; // Number of threads to use for hashing
         private const int _iterations = 3; // Number of iterations
