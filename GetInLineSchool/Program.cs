@@ -3,7 +3,11 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using GetInLineSchool.Repositories;
 using GetInLineSchool.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
 
 Env.Load();
 
@@ -37,6 +41,36 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     };
 });
 
+//JWT
+var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET");
+var key = Encoding.ASCII.GetBytes(jwtSecret);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters()
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(key),//checks original and used secret key
+            ValidIssuer = "GetInLineSchool",
+            ValidAudience = "front-end",
+            RoleClaimType = "role"
+        };
+    });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Admin", p => p.RequireClaim(ClaimTypes.Role, "1"));  
+    options.AddPolicy("Director", p => p.RequireClaim(ClaimTypes.Role, "2"));
+    options.AddPolicy("Accounter", p => p.RequireClaim(ClaimTypes.Role, "3"));
+    options.AddPolicy("Teacher", p => p.RequireClaim(ClaimTypes.Role, "4"));
+    options.AddPolicy("Student", p => p.RequireClaim(ClaimTypes.Role, "5"));
+});
+
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
@@ -49,9 +83,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
