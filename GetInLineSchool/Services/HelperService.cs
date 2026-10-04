@@ -19,6 +19,13 @@ namespace GetInLineSchool.Services
 
     public class HelperService
     {
+        private static readonly DateTime Epoch = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        public static long GetSecondsSinceEpoch()
+        {
+            return (long)(DateTime.UtcNow - Epoch).TotalSeconds;
+        }
+
         public static int CreateSchoolCode()
         {
             return RandomNumberGenerator.GetInt32(100, 1_000);
@@ -49,6 +56,7 @@ namespace GetInLineSchool.Services
                 email.Body = new TextPart(MimeKit.Text.TextFormat.Html)
                 {
                     Text = username != null ? "<b>Твоето потребителско име е: </b>" + username +
+                    "<br> <b> Това е тестова система и ако е получен имейл на реален имейл адрес, не му обръщайте внимение.</b> " + code +
                     "<br> <b> Код за потвърждение:</b> " + code :
                     "<b>Кoд за потвърждение:</b> " + code
                 };
