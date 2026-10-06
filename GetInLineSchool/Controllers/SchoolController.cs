@@ -1,8 +1,10 @@
-﻿using GetInLineSchool.Models;
+﻿using GetInLineSchool.DTOs.Request;
+using GetInLineSchool.DTOs.Response;
+using GetInLineSchool.Models;
 using GetInLineSchool.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using GetInLineSchool.DTOs.Request;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 namespace GetInLineSchool.Controllers
 {
@@ -19,11 +21,11 @@ namespace GetInLineSchool.Controllers
         {
             var result = await _service.CreateSchoolAsync(school);
 
-            return result == Services.StatusCodes.Conflict ?
-                Conflict(ServiceResult<School>.Failure(null, new List<Error>() { new Error { Key = "Global", Message = "Unique fields violation." } }))
-            : result == Services.StatusCodes.ServerError ?
-            StatusCode(500, ServiceResult<School>.Failure(null, new List<Error>() { new Error { Key = "Global", Message = "Failed to create school." } }))
-            : StatusCode(201, (ServiceResult<School>.Success(null)));
+            return result.Code == Services.StatusCodes.Conflict ?
+                Conflict(ServiceResult<CreateSchoolResponse>.Failure(null, new List<Error>() { new Error { Key = "Global", Message = "Unique fields violation." } }))
+            : result.Code == Services.StatusCodes.ServerError ?
+            StatusCode(500, ServiceResult<CreateSchoolResponse>.Failure(null, new List<Error>() { new Error { Key = "Global", Message = "Failed to create school." } }))
+            : StatusCode(201, (ServiceResult<CreateSchoolResponse>.Success(new CreateSchoolResponse { IDSchool = result.IdSchool })));
         }
     }
 }

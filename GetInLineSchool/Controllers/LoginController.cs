@@ -29,7 +29,7 @@ namespace GetInLineSchool.Controllers
             : Unauthorized(ServiceResult<LoginResponse>.Failure(null, new List<Error>() { new Error { Key = "Authorization", Message = result.Message } }));
         }
 
-        [HttpPost]
+        [HttpPost("verify-email")]
         [Authorize]
         public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailRequest request)
         {
@@ -44,7 +44,7 @@ namespace GetInLineSchool.Controllers
                 NotFound(ServiceResult<VerificationCode>.Failure(null, new List<Error>() { new Error { Key = "Verify", Message = result.Message } }))
                 : result.Code == Services.StatusCodes.BadRequest ?
                 BadRequest(ServiceResult<VerificationCode>.Failure(null, new List<Error>() { new Error { Key = "Verify", Message = result.Message } }))
-                : StatusCode(500, ServiceResult<VerificationCode>.Failure(null, new List<Error>() { new Error { Key = "Verify", Message = result.Message } }));     
+                : StatusCode(500, ServiceResult<VerificationCode>.Failure(null, new List<Error>() { new Error { Key = "Verify", Message = result.Message } }));
         }
     }
 }

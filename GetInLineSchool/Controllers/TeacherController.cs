@@ -3,7 +3,7 @@ using GetInLineSchool.DTOs.Response;
 using GetInLineSchool.Models;
 using GetInLineSchool.Services;
 using Microsoft.AspNetCore.Mvc;
-using Org.BouncyCastle.Asn1.Ocsp;
+using Org.BouncyCastle.Security;
 using System.Security.Claims;
 
 namespace GetInLineSchool.Controllers
@@ -13,10 +13,12 @@ namespace GetInLineSchool.Controllers
     public class TeacherController : ControllerBase
     {
         private readonly TeacherService _service = new TeacherService();
+        private readonly LoginService _loginService = new LoginService();
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateTeacherRequest teacher)
         {
+            string password = teacher.Password;
             //Only admin can create director
             string role = User.FindFirst(ClaimTypes.Role)?.Value;
 
@@ -33,8 +35,7 @@ namespace GetInLineSchool.Controllers
 
                 if (teacher.Role != 2)//because director is created from an admin so token can not be accessed by a director
                 {
-                    LoginService _loginService = new LoginService();
-                    var loginResult = await _loginService.LoginAsync(teacher.Username, teacher.Password, teacher.Username.Trim()[0]);
+                    var loginResult = await _loginService.LoginAsync(teacher.Username, password, teacher.Username.Trim()[0]);
 
                     if (loginResult.Code == Services.StatusCodes.Success)
                         return StatusCode(201, ServiceResult<LoginResponse>.Success(new LoginResponse { Token = loginResult.Token }));
