@@ -8,11 +8,11 @@ namespace GetInLineSchool.Services
     {
         private readonly SchoolRepository _repository = new SchoolRepository();
 
-        public async Task<StatusCodes> CreateSchoolAsync(CreateSchoolRequest school)
+        public async Task<(StatusCodes Code,short? IdSchool)> CreateSchoolAsync(CreateSchoolRequest school)
         {
             if (await _repository.CheckUniqueFields(school) > 0)
             {
-                return StatusCodes.Conflict;
+                return (StatusCodes.Conflict, null);
             }
 
             List<int> codes = await _repository.GetSchoolCodes();
@@ -31,12 +31,12 @@ namespace GetInLineSchool.Services
 
             try
             {
-                var rows = await _repository.CreateSchoolAsync(school);
-                return rows > 0 ? StatusCodes.Created : StatusCodes.ServerError;
+                var id = await _repository.CreateSchoolAsync(school);
+                return id > 0 ? (StatusCodes.Created, id) : (StatusCodes.ServerError, null);
             }
             catch(Exception ex)
             {
-                return StatusCodes.ServerError;
+                return (StatusCodes.ServerError, null);
             }
             
         }
