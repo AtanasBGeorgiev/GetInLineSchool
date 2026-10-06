@@ -11,13 +11,13 @@
         public T? Data { get; set; }
         public List<Error>? Errors { get; set; }
 
-        public static ServiceResult<T>Success(T data)
+        public static ServiceResult<T>Success(T data, List<Error>? errors = null)
         {
             return new ServiceResult<T>
             {
                 IsSuccess = true,
                 Data = data,
-                Errors = null
+                Errors = errors
             };
         }
 
