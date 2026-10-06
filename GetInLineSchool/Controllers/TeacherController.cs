@@ -1,7 +1,9 @@
 ﻿using GetInLineSchool.DTOs.Request;
+using GetInLineSchool.DTOs.Response;
 using GetInLineSchool.Models;
 using GetInLineSchool.Services;
 using Microsoft.AspNetCore.Mvc;
+using Org.BouncyCastle.Asn1.Ocsp;
 using System.Security.Claims;
 
 namespace GetInLineSchool.Controllers
@@ -28,6 +30,17 @@ namespace GetInLineSchool.Controllers
             if (result.Code == Services.StatusCodes.Created)
             {
                 var emailResult = await HelperService.SendEmail(teacher.Email, "Потвърждение на регистрацията и верификационен код", teacher.Username);
+
+                if (teacher.Role != 2)//because director is created from an admin so token can not be accessed by a director
+                {
+                    LoginService _loginService = new LoginService();
+                    var loginResult = await _loginService.LoginAsync(teacher.Username, teacher.Password, teacher.Username.Trim()[0]);
+
+                    if (loginResult.Code == Services.StatusCodes.Success)
+                        return StatusCode(201, ServiceResult<LoginResponse>.Success(new LoginResponse { Token = loginResult.Token }));
+
+                    return StatusCode(201, ServiceResult<LoginResponse>.Success(new LoginResponse { Token = loginResult.Token }, new List<Error>() { new Error { Key = "Login", Message = "Created successfully but login failed." } }));
+                }
 
                 if (emailResult.Code == Services.StatusCodes.Success)
                     return StatusCode(201, ServiceResult<Teacher>.Success(null));

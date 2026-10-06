@@ -40,11 +40,9 @@ namespace GetInLineSchool.Services
 
                 if (email == null)
                     return (StatusCodes.NotFound, "Email not found.");
-                if (email != request.Email)
-                    return (StatusCodes.BadRequest, "Can verify only your own email.");
 
                 //get the verification code row from the database and check if it exists, is not expired, and matches the provided code
-                var result = await _loginRepository.VerifyEmailAsync(request);
+                var result = await _loginRepository.VerifyEmailAsync(email);
                 if (result == null)
                     return (StatusCodes.NotFound, "Code not found.");
 
