@@ -31,13 +31,13 @@ namespace GetInLineSchool.Repositories
             return await connection.QueryFirstOrDefaultAsync<Admin>(query, new { Username = username });
         }
 
-        public async Task<VerificationCode> VerifyEmailAsync(VerifyEmailRequest request)
+        public async Task<VerificationCode> VerifyEmailAsync(string email)
         {
             using var connection = dbConnection;
 
             string sql = @"SELECT * FROM VerificationCodes WHERE Email=@Email AND IsUsed=0";
 
-            return await connection.QueryFirstOrDefaultAsync<VerificationCode>(sql, new { Email = request.Email });
+            return await connection.QueryFirstOrDefaultAsync<VerificationCode>(sql, new { Email = email });
         }
 
         public async Task<int> MarkCodeAsUsedAsync(int idCode)
@@ -60,23 +60,16 @@ namespace GetInLineSchool.Repositories
         {
             using var connection = dbConnection;
 
-            string sql = role switch
-            {
-                "1" => @"SELECT Email FROM Admins WHERE IDAdmin=@IDAdmin",
-                "2" or "3" or "4" => @"SELECT Email FROM Teachers WHERE IDTeacher=@IDTeacher",
-                "5" => @"SELECT Email FROM Students WHERE IDStudent=@IDStudent"
-            };
-
             switch (role)
             {
                 case "1":
-                    return await connection.QueryFirstOrDefaultAsync<string>(sql, new { IDAdmin = id });
+                    return await connection.QueryFirstOrDefaultAsync<string>(@"SELECT Email FROM Admins WHERE IDAdmin=@IDAdmin", new { IDAdmin = id });
                 case "2":
                 case "3":
                 case "4":
-                    return await connection.QueryFirstOrDefaultAsync<string>(sql, new { IDTeacher = id });
+                    return await connection.QueryFirstOrDefaultAsync<string>(@"SELECT Email FROM Teachers WHERE IDTeacher=@IDTeacher", new { IDTeacher = id });
                 case "5":
-                    return await connection.QueryFirstOrDefaultAsync<string>(sql, new { IDStudent = id });
+                    return await connection.QueryFirstOrDefaultAsync<string>(@"SELECT Email FROM Students WHERE IDStudent=@IDStudent", new { IDStudent = id });
                 default:
                     return null;
             }
