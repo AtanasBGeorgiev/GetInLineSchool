@@ -23,7 +23,9 @@ namespace GetInLineSchool.Services
 
         public static long GetSecondsSinceEpoch()
         {
-            return (long)(DateTime.UtcNow - Epoch).TotalSeconds;
+            var bulgarianTime = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.UtcNow, "FLE Standard Time");
+
+            return (long)(bulgarianTime - Epoch).TotalSeconds;
         }
 
         public static int CreateSchoolCode()
@@ -36,7 +38,15 @@ namespace GetInLineSchool.Services
             int code = RandomNumberGenerator.GetInt32(100_000, 1_000_000);
 
             //First save code in database
-            VerificationCodeRepository repository = new VerificationCodeRepository();
+            CodeRepository repository = new CodeRepository();
+
+            var isThereCode = await repository.VerifyEmailAsync(to);//prevent creating codes uncontrolled
+            if (isThereCode != null)
+                return (StatusCodes.Conflict, "There is active code for you.");
+
+            var recentCode = await repository.GetLastEmailAsync(to);
+            if (recentCode.ExpirationDate > GetSecondsSinceEpoch() + 239)//there is recent created code
+                return (StatusCodes.Conflict, "Wait 1 minute before requesting a new code.");
 
             string hashedCode = HashingService.Hash(code.ToString());
 
@@ -55,10 +65,12 @@ namespace GetInLineSchool.Services
 
                 email.Body = new TextPart(MimeKit.Text.TextFormat.Html)
                 {
-                    Text = username != null ? "<b>Твоето потребителско име е: </b>" + username +
-                    "<br> <b> Това е тестова система и ако е получен имейл на реален имейл адрес, не му обръщайте внимение.</b> " + code +
-                    "<br> <b> Код за потвърждение:</b> " + code :
-                    "<b>Кoд за потвърждение:</b> " + code
+                    Text = username != null
+                        ? "<b>Твоето потребителско име е: </b>" + username +
+                          "<br><b>Това е тестова система и ако е получен имейл на реален имейл адрес, не му обръщайте внимание.</b><br>" +
+                          "<b>Код за потвърждение:</b> " + code
+                        : "<b>Това е тестова система и ако е получен имейл на реален имейл адрес, не му обръщайте внимание.</b><br>" +
+                          "<b>Код за потвърждение:</b> " + code
                 };
 
                 using (var smtp = new SmtpClient())
