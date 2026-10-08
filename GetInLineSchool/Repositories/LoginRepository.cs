@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using GetInLineSchool.DTOs.Request;
 using GetInLineSchool.Models;
 
 namespace GetInLineSchool.Repositories
@@ -29,50 +28,6 @@ namespace GetInLineSchool.Repositories
             string query = "SELECT * FROM Admins WHERE Username=@Username";
 
             return await connection.QueryFirstOrDefaultAsync<Admin>(query, new { Username = username });
-        }
-
-        public async Task<VerificationCode> VerifyEmailAsync(string email)
-        {
-            using var connection = dbConnection;
-
-            string sql = @"SELECT * FROM VerificationCodes WHERE Email=@Email AND IsUsed=0";
-
-            return await connection.QueryFirstOrDefaultAsync<VerificationCode>(sql, new { Email = email });
-        }
-
-        public async Task<int> MarkCodeAsUsedAsync(int idCode)
-        {
-            using var connection = dbConnection;
-
-            string sql = @"UPDATE VerificationCodes SET IsUsed=1 WHERE IDCode=@IDCode";
-
-            return await connection.ExecuteAsync(sql, new { IDCode = idCode });
-        }
-        public async Task<int> AddAttemptAsync(int idCode)
-        {
-            using var connection = dbConnection;
-
-            string sql = @"UPDATE VerificationCodes SET Attempts=Attempts+1 WHERE IDCode=@IDCode";
-
-            return await connection.ExecuteAsync(sql, new { IDCode = idCode });
-        }
-        public async Task<string> GetEmailAsync(string id, string role)
-        {
-            using var connection = dbConnection;
-
-            switch (role)
-            {
-                case "1":
-                    return await connection.QueryFirstOrDefaultAsync<string>(@"SELECT Email FROM Admins WHERE IDAdmin=@IDAdmin", new { IDAdmin = id });
-                case "2":
-                case "3":
-                case "4":
-                    return await connection.QueryFirstOrDefaultAsync<string>(@"SELECT Email FROM Teachers WHERE IDTeacher=@IDTeacher", new { IDTeacher = id });
-                case "5":
-                    return await connection.QueryFirstOrDefaultAsync<string>(@"SELECT Email FROM Students WHERE IDStudent=@IDStudent", new { IDStudent = id });
-                default:
-                    return null;
-            }
         }
     }
 }
