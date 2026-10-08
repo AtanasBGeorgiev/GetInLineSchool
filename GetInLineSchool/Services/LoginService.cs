@@ -1,6 +1,5 @@
-﻿using GetInLineSchool.Repositories;
-using GetInLineSchool.Services;
-using GetInLineSchool.DTOs.Request;
+﻿using GetInLineSchool.DTOs.Request;
+using GetInLineSchool.Repositories;
 
 namespace GetInLineSchool.Services
 {
@@ -30,47 +29,6 @@ namespace GetInLineSchool.Services
                 return (StatusCodes.ServerError, null, "An error occurred while creating the token or executing SQL.");
             }
         }
-
-        public async Task<(StatusCodes Code, string? Message)> VerifyEmailAsync(VerifyEmailRequest request, string id, string role)
-        {
-            try
-            {
-                //check if target email is the authenticated user's email
-                var email = await _loginRepository.GetEmailAsync(id, role);
-
-                if (email == null)
-                    return (StatusCodes.NotFound, "Email not found.");
-
-                //get the verification code row from the database and check if it exists, is not expired, and matches the provided code
-                var result = await _loginRepository.VerifyEmailAsync(email);
-                if (result == null)
-                    return (StatusCodes.NotFound, "Code not found.");
-
-                if (result.ExpirationDate < HelperService.GetSecondsSinceEpoch())
-                {
-                    await _loginRepository.MarkCodeAsUsedAsync(result.IDCode);
-                    return (StatusCodes.BadRequest, "Code has expired.");
-                }
-
-                if (!HashingService.Verify(request.Code, result.Code))
-                {
-                    await _loginRepository.AddAttemptAsync(result.IDCode);
-                    if (result.Attempts + 1 >= 3)
-                    {
-                        await _loginRepository.MarkCodeAsUsedAsync(result.IDCode);
-                        return (StatusCodes.BadRequest, "Invalid code.Reached attempts limit.");
-                    }
-
-                    return (StatusCodes.BadRequest, "Invalid code.");
-                }
-
-                await _loginRepository.MarkCodeAsUsedAsync(result.IDCode);
-                return (StatusCodes.Success, null);
-            }
-            catch(Exception ex)
-            {
-                return (StatusCodes.ServerError, "SQL Exception occurred.");
-            }
-        }
+        
     }
 }
