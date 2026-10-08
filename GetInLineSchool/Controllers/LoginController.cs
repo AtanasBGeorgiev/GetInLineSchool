@@ -28,23 +28,5 @@ namespace GetInLineSchool.Controllers
                 Ok(ServiceResult<LoginResponse>.Success(new LoginResponse { Token = result.Token }))
             : Unauthorized(ServiceResult<LoginResponse>.Failure(null, new List<Error>() { new Error { Key = "Authorization", Message = result.Message } }));
         }
-
-        [HttpPost("verify-email")]
-        [Authorize]
-        public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailRequest request)
-        {
-            string userId = User.Claims.FirstOrDefault(c => c.Type == "id")?.Value;
-            string role = User.FindFirst(ClaimTypes.Role)?.Value;
-
-            var result = await _service.VerifyEmailAsync(request, userId, role);
-
-            return result.Code == Services.StatusCodes.Success ?
-                 Ok(ServiceResult<VerificationCode>.Success(null))
-                : result.Code == Services.StatusCodes.NotFound ?
-                NotFound(ServiceResult<VerificationCode>.Failure(null, new List<Error>() { new Error { Key = "Verify", Message = result.Message } }))
-                : result.Code == Services.StatusCodes.BadRequest ?
-                BadRequest(ServiceResult<VerificationCode>.Failure(null, new List<Error>() { new Error { Key = "Verify", Message = result.Message } }))
-                : StatusCode(500, ServiceResult<VerificationCode>.Failure(null, new List<Error>() { new Error { Key = "Verify", Message = result.Message } }));
-        }
     }
 }
