@@ -1,5 +1,7 @@
 ﻿using GetInLineSchool.DTOs.Request;
+using GetInLineSchool.Models;
 using GetInLineSchool.Repositories;
+using GetInLineSchool.DTOs.Response;
 
 namespace GetInLineSchool.Services
 {
@@ -72,6 +74,51 @@ namespace GetInLineSchool.Services
             catch (Exception)
             {
                 return (StatusCodes.ServerError, "SQL error occured.");
+            }
+        }
+        public async Task<(StatusCodes Code, string? Message, string? signUpCode)> CreateSignUpCode(string idTeacher, string role, byte codeType)
+        {
+            try
+            {
+                var isConfirmed = await _repository.IsVerifiedUserAsync(idTeacher);
+                if (!isConfirmed)
+                    return (StatusCodes.Forbidden, "Not verified teacher", null);
+
+                if (role != "2" && codeType == 1)
+                    return (StatusCodes.BadRequest, "Only director can add teachers.", null);
+
+                var idSchool = await _repository.GetSchoolIdAsync(idTeacher);
+
+                if (idSchool == null)
+                    return (StatusCodes.NotFound, "School not found.", null);
+
+                if (codeType == 1)
+                {
+                    if (await _repository.IsThereActiveCodeAsync(idSchool, codeType) > 0)
+                        return (StatusCodes.Conflict, "SignUpCode already exists for this school and role.", null);
+                }
+
+                string code = HelperService.GenerateSignUpCodes();
+                //string hashedCode = HashingService.Hash(code);
+
+                SignUpCode signUpCode = new SignUpCode
+                {
+                    Code = code,
+                    IDSchool = idSchool,
+                    IDTeacher = Convert.ToInt32(idTeacher),
+                    CodeType = codeType,
+                };
+
+                var result = await _repository.CreateSignUpCodeAsync(signUpCode);
+
+                if (result == 0)
+                    return (StatusCodes.ServerError, "Failed to create sign-up code.", null);
+
+                return (StatusCodes.Success, null, code);
+            }
+            catch(Exception ex)
+            {
+                return (StatusCodes.ServerError, "SQL error occured.", null);
             }
         }
     }

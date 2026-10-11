@@ -1,4 +1,5 @@
 ﻿using GetInLineSchool.DTOs.Request;
+using GetInLineSchool.DTOs.Response;
 using GetInLineSchool.Models;
 using GetInLineSchool.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -9,7 +10,6 @@ namespace GetInLineSchool.Controllers
 {
     [ApiController]
     [Route("api/code")]
-    [Authorize]
     public class CodeController : ControllerBase
     {
         private readonly CodeService _service = new CodeService();
@@ -32,6 +32,7 @@ namespace GetInLineSchool.Controllers
         }
 
         [HttpPost("create-ver-code")]
+        [Authorize]
         public async Task<IActionResult> CreateVerificationCode()
         {
             string userId = User.Claims.FirstOrDefault(c => c.Type == "id")?.Value;
@@ -44,14 +45,26 @@ namespace GetInLineSchool.Controllers
                 : StatusCode(500, ServiceResult<VerificationCode>.Failure(null, new List<Error>() { new Error { Key = "Ver code", Message = result.Message } }));
         }
 
-        //[HttpPost("sign-up-code")]
-        //[Authorize(Policy = "TeacherOrDirector")]
-        //public async Task<IActionResult> CreateSignUpCode([FromBody] SignUpCodeRequest request)
-        //{
-        //    string userId = User.Claims.FirstOrDefault(c => c.Type == "id")?.Value;
-        //    string role = User.FindFirst(ClaimTypes.Role)?.Value;
+        [HttpPost("sign-up-code")]
+        [Authorize(Policy = "TeacherOrDirector")]
+        public async Task<IActionResult> CreateSignUpCode([FromBody] SignUpCodeRequest request)
+        {
+            string userId = User.Claims.FirstOrDefault(c => c.Type == "id")?.Value;
+            string role = User.FindFirst(ClaimTypes.Role)?.Value;
 
+            var result = await _service.CreateSignUpCode(userId, role, request.CodeType);
 
-        //}
+            return result.Code == Services.StatusCodes.Success ?
+                StatusCode(201, ServiceResult<CreateSignUpCodeResponse>.Success(new CreateSignUpCodeResponse { Code = result.signUpCode }))
+                : result.Code == Services.StatusCodes.NotFound ?
+                NotFound(ServiceResult<SignUpCode>.Failure(null, new List<Error>() { new Error { Key = "Sign up code", Message = result.Message } }))
+                : result.Code == Services.StatusCodes.Forbidden ?
+                StatusCode(403,ServiceResult<SignUpCode>.Failure(null, new List<Error>() { new Error { Key = "Sign up code", Message = result.Message } }))
+                 : result.Code == Services.StatusCodes.BadRequest ?
+                BadRequest(ServiceResult<SignUpCode>.Failure(null, new List<Error>() { new Error { Key = "Verify", Message = result.Message } }))
+                : result.Code == Services.StatusCodes.Conflict ?
+                Conflict(ServiceResult<SignUpCode>.Failure(null, new List<Error>() { new Error { Key = "Conflict", Message = result.Message } }))
+                : StatusCode(500, ServiceResult<SignUpCode>.Failure(null, new List<Error>() { new Error { Key = "Verify", Message = result.Message } }));
+        }
     }
 }

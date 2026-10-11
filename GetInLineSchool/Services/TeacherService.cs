@@ -22,6 +22,14 @@ namespace GetInLineSchool.Services
                         return (StatusCodes.Conflict, "Director already exists for this school.");
                 }
 
+                if (!directorCheck)//director is added by admin
+                {
+                    CodeRepository _codeRepository = new CodeRepository();
+
+                    if (await _codeRepository.GetSignUpCodeAsync(teacher.IDSchool, 1, teacher.SignUpCode) == 0)
+                        return (StatusCodes.NotFound, "Wrong sign up code.");
+                }
+
                 SchoolRepository schoolRepository = new SchoolRepository();
                 string schoolCode = await schoolRepository.GetCodeBySchoolAsync(teacher.IDSchool);
 

@@ -24,6 +24,8 @@ namespace GetInLineSchool.Validators
             RuleFor(t => t.Role)
                 .NotEmpty().WithMessage("Role is required.")
                 .InclusiveBetween(2,4).WithMessage("Invalid role value.");
+            RuleFor(t => t.SignUpCode)
+                .NotEmpty().WithMessage("Sign up code is required");
         }
     }
 }

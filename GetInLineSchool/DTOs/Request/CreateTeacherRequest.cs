@@ -7,5 +7,6 @@
         public string Email { get; set; }
         public short IDSchool { get; set; }
         public int Role { get; set; }
+        public string SignUpCode { get; set; }
     }
 }

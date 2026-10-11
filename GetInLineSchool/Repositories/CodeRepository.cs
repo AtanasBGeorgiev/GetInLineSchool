@@ -112,5 +112,65 @@ namespace GetInLineSchool.Repositories
                     return null;
             }
         }
+        //sign up code meyhods
+        public async Task<short> GetSchoolIdAsync(string id)
+        {
+            using var connection = dbConnection;
+
+            string sql = @"SELECT IDSchool FROM Teachers WHERE IDTeacher=@IDTeacher";
+
+            return await connection.QueryFirstOrDefaultAsync<short>(sql, new { IDTeacher = id });
+        }
+        public async Task<int> CreateSignUpCodeAsync(SignUpCode code)
+        {
+            using var connection = dbConnection;
+
+            string sql = @"INSERT INTO SignUpCodes(Code,IDSchool,IDTeacher,CodeType)" +
+                "VALUES(@Code, @IDSchool, @IDTeacher, @CodeType)";
+
+            return await connection.ExecuteAsync(sql, code);
+        }
+
+        public async Task<int> IsThereActiveCodeAsync(short idSchool, byte codeType)
+        {
+            using var connection = dbConnection;
+
+            string sql = @"SELECT COUNT(*) FROM SignUpCodes WHERE IDSchool = @IDSchool AND CodeType=@CodeType AND ExpirationDate > DATEDIFF_BIG(
+                            SECOND,
+                            '2025-01-01',
+                            CONVERT(
+                                DATETIME2,
+                                SYSUTCDATETIME()
+                                AT TIME ZONE 'UTC'
+                                AT TIME ZONE 'E. Europe Standard Time'
+                            ))";
+
+            return await connection.ExecuteScalarAsync<int>(sql, new { IDSchool = idSchool, CodeType = codeType });
+        }
+
+        public async Task<bool> IsVerifiedUserAsync(string idTeacher)
+        {
+            var connection = dbConnection;
+
+            string sql = @"SELECT IsActive FROM Teachers WHERE IDTeacher=@IDTeacher";
+
+            return await connection.QueryFirstOrDefaultAsync<bool>(sql, new { IDTeacher = idTeacher });
+        }
+        public async Task<int> GetSignUpCodeAsync(int idSchool, int codeType, string code)
+        {
+            using var connection = dbConnection;
+
+            string sql = @"SELECT COUNT(*) FROM SignUpCodes WHERE Code=@Code AND IDSchool=@IDSchool AND CodeType = @CodeType AND ExpirationDate > DATEDIFF_BIG(
+                            SECOND,
+                            '2025-01-01',
+                            CONVERT(
+                                DATETIME2,
+                                SYSUTCDATETIME()
+                                AT TIME ZONE 'UTC'
+                                AT TIME ZONE 'E. Europe Standard Time'
+                            ))";
+
+            return await connection.ExecuteScalarAsync<int>(sql, new { Code = code, IDSchool = idSchool, CodeType = codeType });
+        }
     }
 }

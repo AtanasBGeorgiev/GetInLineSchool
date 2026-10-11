@@ -3,7 +3,6 @@ using GetInLineSchool.DTOs.Response;
 using GetInLineSchool.Models;
 using GetInLineSchool.Services;
 using Microsoft.AspNetCore.Mvc;
-using Org.BouncyCastle.Security;
 using System.Security.Claims;
 
 namespace GetInLineSchool.Controllers
