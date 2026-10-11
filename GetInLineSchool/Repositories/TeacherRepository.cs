@@ -31,5 +31,6 @@ namespace GetInLineSchool.Repositories
 
             return await connection.ExecuteScalarAsync<int>(sql, new { IDSchool = teacher.IDSchool });
         }
+        
     }
 }
