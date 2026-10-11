@@ -21,6 +21,8 @@ namespace GetInLineSchool.Services
     {
         private static readonly DateTime Epoch = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
+        private const string _characters = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
         public static long GetSecondsSinceEpoch()
         {
             var bulgarianTime = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.UtcNow, "FLE Standard Time");
@@ -99,6 +101,17 @@ namespace GetInLineSchool.Services
             {
                 return (StatusCodes.ServerError, "Unexpected error occurred.");
             }
+        }
+
+        public static string GenerateSignUpCodes()
+        {
+            return string.Create(8, _characters, (span, chars) =>
+            {
+                for (int i = 0; i < span.Length; i++)
+                {
+                    span[i] = chars[RandomNumberGenerator.GetInt32(chars.Length)];
+                }
+            });
         }
     }
 }
