@@ -47,7 +47,7 @@ namespace GetInLineSchool.Services
                 return (StatusCodes.Conflict, "There is active code for you.");
 
             var recentCode = await repository.GetLastEmailAsync(to);
-            if (recentCode.ExpirationDate > GetSecondsSinceEpoch() + 239)//there is recent created code
+            if (recentCode!=null && recentCode.ExpirationDate > GetSecondsSinceEpoch() + 239)//there is recent created code
                 return (StatusCodes.Conflict, "Wait 1 minute before requesting a new code.");
 
             string hashedCode = HashingService.Hash(code.ToString());

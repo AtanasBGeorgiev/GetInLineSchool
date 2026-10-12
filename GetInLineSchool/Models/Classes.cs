@@ -6,8 +6,7 @@
         public short IDSchool { get; set; }
         public int Year { get; set; }
         public char Class { get; set; }
-        public byte Category { get; set; }
-        public byte Duration { get; set; }
+        public byte IDClassCategory { get; set; }
         public bool IsActive { get; set; }
     }
 }
