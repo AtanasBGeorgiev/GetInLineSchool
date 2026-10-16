@@ -19,7 +19,7 @@ namespace GetInLineSchool.Controllers
         {
             var result = await _service.CreateSchoolAsync(school);
 
-            return await ReturnStatusCode<CreateSchoolResponse>(result.Code, result.Message, null);
+            return await ReturnStatusCode<CreateSchoolResponse>(result.Code, result.Message, new CreateSchoolResponse { IDSchool = result.IdSchool });
         }
     }
 }

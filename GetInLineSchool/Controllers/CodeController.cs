@@ -46,7 +46,7 @@ namespace GetInLineSchool.Controllers
 
             var result = await _service.CreateSignUpCode(userId, role, request.CodeType);
 
-            return await ReturnStatusCode<CreateSignUpCodeResponse>(result.Code, result.Message, null);
+            return await ReturnStatusCode<CreateSignUpCodeResponse>(result.Code, result.Message, new CreateSignUpCodeResponse { Code = result.signUpCode });
         }
     }
 }
