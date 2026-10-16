@@ -10,7 +10,7 @@ namespace GetInLineSchool.Controllers
             return code == Services.StatusCodes.Success ?
                  Ok(ServiceResult<T>.Success(successData))
                 : code == Services.StatusCodes.Created ?
-                StatusCode(201, ServiceResult<T>.Success(default))
+                StatusCode(201, ServiceResult<T>.Success(successData))
                  : code == Services.StatusCodes.BadRequest ?
                  BadRequest(ServiceResult<T>.Failure(default, new List<Error>() { new Error { Key = "Bad request", Message = message } }))
                 : code == Services.StatusCodes.Forbidden ?
