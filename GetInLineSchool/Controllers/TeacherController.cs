@@ -9,7 +9,7 @@ namespace GetInLineSchool.Controllers
 {
     [ApiController]
     [Route("api/teachers")]
-    public class TeacherController : ControllerBase
+    public class TeacherController : BaseController
     {
         private readonly TeacherService _service = new TeacherService();
         private readonly LoginService _loginService = new LoginService();
@@ -48,11 +48,7 @@ namespace GetInLineSchool.Controllers
                 return StatusCode(500, ServiceResult<Teacher>.Failure(null, new List<Error>() { new Error { Key = "Global", Message = "User is created successfully but " + emailResult.Message } }));     
             }
 
-            return result.Code == Services.StatusCodes.NotFound ?
-                NotFound(ServiceResult<Teacher>.Failure(null, new List<Error>() { new Error { Key = "School", Message = result.Message } }))
-            : result.Code == Services.StatusCodes.Conflict ?
-                Conflict(ServiceResult<Teacher>.Failure(null, new List<Error>() { new Error { Key = "Global", Message = result.Message } }))
-            : StatusCode(500, ServiceResult<Teacher>.Failure(null, new List<Error>() { new Error { Key = "Global", Message = result.Message } }));
+            return await ReturnStatusCode<Teacher>(result.Code, result.Message, null);
         }
     }
 }
