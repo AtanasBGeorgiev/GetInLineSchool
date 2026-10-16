@@ -1,4 +1,5 @@
 ﻿using GetInLineSchool.DTOs.Request;
+using GetInLineSchool.DTOs.Response;
 using GetInLineSchool.Models;
 using GetInLineSchool.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -9,7 +10,7 @@ namespace GetInLineSchool.Controllers
 {
     [ApiController]
     [Route("api/qualification")]
-    public class TeacherQualificationController : ControllerBase
+    public class TeacherQualificationController : BaseController
     {
         QualificationService _service = new QualificationService();
 
@@ -22,13 +23,7 @@ namespace GetInLineSchool.Controllers
 
             var result = await _service.CreateQualifications(request, idTeacher, role);
 
-            return result.Code == Services.StatusCodes.Success ?
-                StatusCode(201, ServiceResult<TeacherQualification>.Success(null))
-                : result.Code == Services.StatusCodes.Conflict ?
-                Conflict(ServiceResult<Classes>.Failure(null, new List<Error>() { new Error { Key = "Conflict", Message = result.Message } }))
-                : result.Code == Services.StatusCodes.BadRequest ?
-                BadRequest(ServiceResult<Classes>.Failure(null, new List<Error>() { new Error { Key = "Bad request", Message = result.Message } }))
-                : StatusCode(500, ServiceResult<Classes>.Failure(null, new List<Error>() { new Error { Key = "Not found", Message = result.Message } }));
+            return await ReturnStatusCode<TeacherQualification>(result.Code, result.Message, null);
         }
     }
 }

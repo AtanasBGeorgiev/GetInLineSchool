@@ -10,7 +10,7 @@ namespace GetInLineSchool.Controllers
     [ApiController]
     [Route("api/class")]
     [Authorize(Policy = "Director")]
-    public class ClassController : ControllerBase
+    public class ClassController : BaseController
     {
         private readonly ClassService _service = new ClassService();
 
@@ -22,15 +22,7 @@ namespace GetInLineSchool.Controllers
 
             var result = await _service.CreateMultipleClassesAsync(request, directorId, role);
 
-            return result.Code == Services.StatusCodes.Success ?
-                StatusCode(201, ServiceResult<Classes>.Success(null))
-                : result.Code == Services.StatusCodes.NotFound ?
-                NotFound(ServiceResult<Classes>.Failure(null, new List<Error>() { new Error { Key = "Not found", Message = result.Message } }))
-                : result.Code == Services.StatusCodes.Conflict ?
-                Conflict(ServiceResult<Classes>.Failure(null, new List<Error>() { new Error { Key = "Conflict", Message = result.Message } }))
-                 : result.Code == Services.StatusCodes.BadRequest ?
-                BadRequest(ServiceResult<Classes>.Failure(null, new List<Error>() { new Error { Key = "Bad request", Message = result.Message } }))
-                : StatusCode(500, ServiceResult<Classes>.Failure(null, new List<Error>() { new Error { Key = "Not found", Message = result.Message } }));
+            return await ReturnStatusCode<Classes>(result.Code, result.Message);
         }
 
         [HttpPost("single-class")]
@@ -41,15 +33,7 @@ namespace GetInLineSchool.Controllers
 
             var result = await _service.CreateClassAsync(request, directorId, role);
 
-            return result.Code == Services.StatusCodes.Success ?
-                StatusCode(201, ServiceResult<Classes>.Success(null))
-                : result.Code == Services.StatusCodes.NotFound ?
-                NotFound(ServiceResult<Classes>.Failure(null, new List<Error>() { new Error { Key = "Not found", Message = result.Message } }))
-                : result.Code == Services.StatusCodes.Conflict ?
-                Conflict(ServiceResult<Classes>.Failure(null, new List<Error>() { new Error { Key = "Conflict", Message = result.Message } }))
-                : result.Code == Services.StatusCodes.BadRequest ?
-                BadRequest(ServiceResult<Classes>.Failure(null, new List<Error>() { new Error { Key = "Bad request", Message = result.Message } }))
-                : StatusCode(500, ServiceResult<Classes>.Failure(null, new List<Error>() { new Error { Key = "Not found", Message = result.Message } }));
+            return await ReturnStatusCode<Classes>(result.Code, result.Message, null);
         }
     }
 }

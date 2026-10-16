@@ -10,7 +10,7 @@ namespace GetInLineSchool.Controllers
 {
     [ApiController]
     [Route("api/code")]
-    public class CodeController : ControllerBase
+    public class CodeController : BaseController
     {
         private readonly CodeService _service = new CodeService();
 
@@ -22,13 +22,7 @@ namespace GetInLineSchool.Controllers
 
             var result = await _service.VerifyEmailAsync(request, userId, role);
 
-            return result.Code == Services.StatusCodes.Success ?
-                 Ok(ServiceResult<VerificationCode>.Success(null))
-                : result.Code == Services.StatusCodes.NotFound ?
-                NotFound(ServiceResult<VerificationCode>.Failure(null, new List<Error>() { new Error { Key = "Verify", Message = result.Message } }))
-                : result.Code == Services.StatusCodes.BadRequest ?
-                BadRequest(ServiceResult<VerificationCode>.Failure(null, new List<Error>() { new Error { Key = "Verify", Message = result.Message } }))
-                : StatusCode(500, ServiceResult<VerificationCode>.Failure(null, new List<Error>() { new Error { Key = "Verify", Message = result.Message } }));
+            return await ReturnStatusCode<VerificationCode>(result.Code, result.Message, null);
         }
 
         [HttpPost("create-ver-code")]
@@ -40,9 +34,7 @@ namespace GetInLineSchool.Controllers
 
             var result = await _service.CreateVerificationCode(userId, role);
 
-            return result.Code == Services.StatusCodes.Success ?
-                StatusCode(201, ServiceResult<VerificationCode>.Success(null))
-                : StatusCode(500, ServiceResult<VerificationCode>.Failure(null, new List<Error>() { new Error { Key = "Ver code", Message = result.Message } }));
+            return await ReturnStatusCode<VerificationCode>(result.Code, result.Message, null);
         }
 
         [HttpPost("sign-up-code")]
@@ -54,17 +46,7 @@ namespace GetInLineSchool.Controllers
 
             var result = await _service.CreateSignUpCode(userId, role, request.CodeType);
 
-            return result.Code == Services.StatusCodes.Success ?
-                StatusCode(201, ServiceResult<CreateSignUpCodeResponse>.Success(new CreateSignUpCodeResponse { Code = result.signUpCode }))
-                : result.Code == Services.StatusCodes.NotFound ?
-                NotFound(ServiceResult<SignUpCode>.Failure(null, new List<Error>() { new Error { Key = "Sign up code", Message = result.Message } }))
-                : result.Code == Services.StatusCodes.Forbidden ?
-                StatusCode(403,ServiceResult<SignUpCode>.Failure(null, new List<Error>() { new Error { Key = "Sign up code", Message = result.Message } }))
-                 : result.Code == Services.StatusCodes.BadRequest ?
-                BadRequest(ServiceResult<SignUpCode>.Failure(null, new List<Error>() { new Error { Key = "Verify", Message = result.Message } }))
-                : result.Code == Services.StatusCodes.Conflict ?
-                Conflict(ServiceResult<SignUpCode>.Failure(null, new List<Error>() { new Error { Key = "Conflict", Message = result.Message } }))
-                : StatusCode(500, ServiceResult<SignUpCode>.Failure(null, new List<Error>() { new Error { Key = "Verify", Message = result.Message } }));
+            return await ReturnStatusCode<CreateSignUpCodeResponse>(result.Code, result.Message, null);
         }
     }
 }

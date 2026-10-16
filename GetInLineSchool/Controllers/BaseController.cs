@@ -1,19 +1,14 @@
-﻿using GetInLineSchool.DTOs.Response;
-using GetInLineSchool.Models;
-using GetInLineSchool.Services;
-using Microsoft.AspNetCore.Http.HttpResults;
+﻿using GetInLineSchool.Services;
 using Microsoft.AspNetCore.Mvc;
-using Superpower.Model;
-using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
 
 namespace GetInLineSchool.Controllers
 {
     public class BaseController : ControllerBase
     {
-        protected async Task<IActionResult> ReturnStatusCode<T>(Services.StatusCodes code, string? message)
+        protected async Task<IActionResult> ReturnStatusCode<T>(Services.StatusCodes code, string? message, T? successData)
         {
             return code == Services.StatusCodes.Success ?
-                 Ok(ServiceResult<VerificationCode>.Success(null))
+                 Ok(ServiceResult<T>.Success(successData))
                 : code == Services.StatusCodes.Created ?
                 StatusCode(201, ServiceResult<T>.Success(default))
                  : code == Services.StatusCodes.BadRequest ?
