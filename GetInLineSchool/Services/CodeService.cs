@@ -1,7 +1,6 @@
 ﻿using GetInLineSchool.DTOs.Request;
 using GetInLineSchool.Models;
 using GetInLineSchool.Repositories;
-using GetInLineSchool.DTOs.Response;
 
 namespace GetInLineSchool.Services
 {
@@ -45,7 +44,7 @@ namespace GetInLineSchool.Services
                 await _repository.MarkCodeAsUsedAsync(result.IDCode);
                 await _repository.ActivateUserAsync(id, role);
 
-                return (StatusCodes.Success, null);
+                return (StatusCodes.Created, null);
             }
             catch (Exception ex)
             {
@@ -67,7 +66,7 @@ namespace GetInLineSchool.Services
                 var emailResult = await HelperService.SendEmail(result.Email, "Потвърждение на регистрацията и верификационен код", "");
 
                 if (emailResult.Code == Services.StatusCodes.Success)
-                    return (StatusCodes.Success, null);
+                    return (StatusCodes.Created, null);
 
                 return (emailResult.Code, emailResult.Message);
             }
@@ -114,7 +113,7 @@ namespace GetInLineSchool.Services
                 if (result == 0)
                     return (StatusCodes.ServerError, "Failed to create sign-up code.", null);
 
-                return (StatusCodes.Success, null, code);
+                return (StatusCodes.Created, null, code);
             }
             catch(Exception ex)
             {

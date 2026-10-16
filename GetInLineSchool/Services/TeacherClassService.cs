@@ -43,7 +43,7 @@ namespace GetInLineSchool.Services
                 var result = await _service.CreateTeacherClassesAsync(parameters);
 
                 if (result > 0)
-                    return (StatusCodes.Success, null);
+                    return (StatusCodes.Created, null);
 
                 return (StatusCodes.ServerError, "Failed to create teacher classes.");
             }

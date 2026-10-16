@@ -2,7 +2,6 @@
 using GetInLineSchool.Models;
 using GetInLineSchool.Repositories;
 using Microsoft.Data.SqlClient;
-using System.Data;
 
 namespace GetInLineSchool.Services
 {
@@ -33,7 +32,7 @@ namespace GetInLineSchool.Services
                 var result = await _repository.CreateQualificationsAsync(parameters);
 
                 if (result > 0)
-                    return (StatusCodes.Success, null);
+                    return (StatusCodes.Created, null);
 
                 return (StatusCodes.ServerError, "Failed to add qualifications.");
             }

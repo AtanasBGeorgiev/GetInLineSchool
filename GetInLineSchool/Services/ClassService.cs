@@ -55,7 +55,7 @@ namespace GetInLineSchool.Services
                 var result = await _repository.CreateMultipleSchoolsAsync(parameters);
 
                 if (result > 0)
-                    return (StatusCodes.Success, null);
+                    return (StatusCodes.Created, null);
 
                 return (StatusCodes.ServerError, "Failed to add classes.");
             }
@@ -95,7 +95,7 @@ namespace GetInLineSchool.Services
                 var result = await _repository.CreateMultipleSchoolsAsync(parameters);
 
                 if (result > 0)
-                    return (StatusCodes.Success, null);
+                    return (StatusCodes.Created, null);
 
                 return (StatusCodes.ServerError, "Failed to add classes.");
             }
