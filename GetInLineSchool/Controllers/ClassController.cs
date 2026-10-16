@@ -22,7 +22,7 @@ namespace GetInLineSchool.Controllers
 
             var result = await _service.CreateMultipleClassesAsync(request, directorId, role);
 
-            return await ReturnStatusCode<Classes>(result.Code, result.Message);
+            return await ReturnStatusCode<Classes>(result.Code, result.Message, null);
         }
 
         [HttpPost("single-class")]
