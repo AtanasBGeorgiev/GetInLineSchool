@@ -20,7 +20,7 @@ namespace GetInLineSchool.Services
 
             while (true)
             {
-                code = HelperService.CreateSchoolCode();
+                code = HelperService.CreateCode();
 
                 if (!codes.Contains(code))
                     break;

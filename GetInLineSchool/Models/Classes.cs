@@ -7,6 +7,7 @@
         public int Year { get; set; }
         public char Class { get; set; }
         public byte IDClassCategory { get; set; }
+        public int ClassCode { get; set; }
         public bool IsActive { get; set; }
     }
 }

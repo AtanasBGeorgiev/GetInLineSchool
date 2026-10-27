@@ -30,7 +30,7 @@ namespace GetInLineSchool.Services
             return (long)(bulgarianTime - Epoch).TotalSeconds;
         }
 
-        public static int CreateSchoolCode()
+        public static int CreateCode()
         {
             return RandomNumberGenerator.GetInt32(100, 1_000);
         }
