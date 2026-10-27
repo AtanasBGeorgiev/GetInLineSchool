@@ -45,7 +45,8 @@ namespace GetInLineSchool.Services
                                 IDSchool = idSchool,
                                 Year = currentYear,
                                 Class = currentClass,
-                                IDClassCategory = request.IDClassCategory
+                                IDClassCategory = request.IDClassCategory,
+                                ClassCode = await CreateClassCode(idSchool)
                             });
                         currentClass++;
                     }
@@ -89,7 +90,8 @@ namespace GetInLineSchool.Services
                         IDSchool = idSchool,
                         Year = request.Year,
                         Class = request.Class,
-                        IDClassCategory = request.IDClassCategory
+                        IDClassCategory = request.IDClassCategory,
+                        ClassCode = await CreateClassCode(idSchool)
                     });
 
                 var result = await _repository.CreateMultipleSchoolsAsync(parameters);
@@ -108,6 +110,23 @@ namespace GetInLineSchool.Services
                 return (StatusCodes.ServerError, "SQL error occured.");
             }
 
+        }
+
+        private async Task<int> CreateClassCode(short idSchool)
+        {
+            List<int> codes = await _repository.GetClassCodes(idSchool);
+
+            int code = 0;
+
+            while (true)
+            {
+                code = HelperService.CreateCode();
+
+                if (!codes.Contains(code))
+                    break;
+            }
+
+            return code;
         }
     }
 }
