@@ -49,5 +49,12 @@ namespace GetInLineSchool.Repositories
             return await connection.QueryFirstOrDefaultAsync<int>
                 ("SELECT COUNT(*) FROM Students WHERE Username=@Username OR Email=@Email", request);
         }
+        public async Task<int> GetCountStudentsInClass(int idClass)
+        {
+            using var connection = dbConnection;
+
+            return await connection.QueryFirstOrDefaultAsync<int>
+                ("SELECT COUNT(*) FROM Students WHERE IDClass=@IDClass", new { IDClass = idClass });
+        }
     }
 }
