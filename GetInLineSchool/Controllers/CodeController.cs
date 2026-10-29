@@ -44,7 +44,7 @@ namespace GetInLineSchool.Controllers
             string userId = User.Claims.FirstOrDefault(c => c.Type == "id")?.Value;
             string role = User.FindFirst(ClaimTypes.Role)?.Value;
 
-            var result = await _service.CreateSignUpCode(userId, role, request.CodeType);
+            var result = await _service.CreateSignUpCode(userId, role, request.CodeType, request.IDClass);
 
             return await ReturnStatusCode<CreateSignUpCodeResponse>(result.Code, result.Message, new CreateSignUpCodeResponse { Code = result.signUpCode });
         }

@@ -7,6 +7,7 @@
         public short IDSchool { get; set; }
         public int IDTeacher { get; set; }
         public byte CodeType { get; set; }
+        public int? IDClass { get; set; }
         public long ExpirationDate { get; set; }
     }
 }
