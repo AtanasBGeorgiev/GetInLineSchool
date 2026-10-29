@@ -14,7 +14,7 @@ namespace GetInLineSchool.Controllers
         private readonly LoginService _loginService = new LoginService();
 
         [Authorize(Policy = "TeacherOrDirector")]
-        public async Task<IActionResult> CreateStudentAsync([FromBody] CreateStudentRequest request)
+        public async Task<IActionResult> CreateStudentsAsync([FromBody] CreateStudentRequest request)
         {
             int idTeacher = Convert.ToInt32(User.Claims.FirstOrDefault(c => c.Type == "id")?.Value);
             var result = await _service.CreateStudentAsync(request, idTeacher);
