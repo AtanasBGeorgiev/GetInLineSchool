@@ -1,6 +1,7 @@
 ﻿using GetInLineSchool.DTOs.Request;
 using GetInLineSchool.Models;
 using GetInLineSchool.Repositories;
+using Microsoft.Data.SqlClient;
 using System.Text;
 
 namespace GetInLineSchool.Services
@@ -60,6 +61,40 @@ namespace GetInLineSchool.Services
             {
                 return (StatusCodes.ServerError, "SQL error occured");
             }
+        }
+
+        public async Task<(StatusCodes Code, string? Message)> SetStudentDataAsync(AtivateStudentRequest request)
+        {
+            try
+            {
+                var student = await _repository.GetStudentClassByUsernameAsync(request.Username);
+                if (student == null || student.IDClass == 0)
+                    return (StatusCodes.NotFound, "Student not found.");
+
+                int isValid = await _repository.CheckSignUpCode(request.SignUpCode, student.IDClass);
+                if (isValid == 0)
+                    return (StatusCodes.BadRequest, "Wrong signUpCode or it does not exist for your class.");
+
+                string hashedPassword = HashingService.Hash(request.Password);
+
+                var result = await _repository.SetPassEmailStudentAsync(hashedPassword, request.Email, student.IDStudent);
+
+                if (result < 1)
+                    return (StatusCodes.ServerError, "Failed to update student data.");
+
+                var sendEmailResult = await HelperService.SendEmail(request.Email, "Verification code", null);
+
+                return (StatusCodes.Success, sendEmailResult.Message);
+            }
+            catch (SqlException ex) when (ex.Number == 2627 || ex.Number == 2601)
+            {
+                return (StatusCodes.Conflict, "Email already in use.");
+            }
+            catch (Exception ex)
+            {
+                return (StatusCodes.ServerError, "SQL error occured.");
+            }
+
         }
     }
 }

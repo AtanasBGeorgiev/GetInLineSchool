@@ -75,7 +75,7 @@ namespace GetInLineSchool.Services
                 return (StatusCodes.ServerError, "SQL error occured.");
             }
         }
-        public async Task<(StatusCodes Code, string? Message, string? signUpCode)> CreateSignUpCode(string idTeacher, string role, byte codeType)
+        public async Task<(StatusCodes Code, string? Message, string? signUpCode)> CreateSignUpCode(string idTeacher, string role, byte codeType, int? idClass)
         {
             try
             {
@@ -93,8 +93,19 @@ namespace GetInLineSchool.Services
 
                 if (codeType == 1)
                 {
+                    idClass = 0;//avoid mistakes
+
                     if (await _repository.IsThereActiveCodeAsync(idSchool, codeType) > 0)
                         return (StatusCodes.Conflict, "SignUpCode already exists for this school and role.", null);
+                }
+
+                if (codeType == 2)
+                {
+                    if (idClass == 0)
+                        return (StatusCodes.BadRequest, "ID of class is mandatory when create sign up code for a class.", null);
+
+                    if (await _repository.IsThereActiveClassCodeAsync(idClass, codeType) > 0)
+                        return (StatusCodes.Conflict, "SignUpCode already exists for this class.", null);
                 }
 
                 string code = HelperService.GenerateSignUpCodes();
@@ -106,6 +117,7 @@ namespace GetInLineSchool.Services
                     IDSchool = idSchool,
                     IDTeacher = Convert.ToInt32(idTeacher),
                     CodeType = codeType,
+                    IDClass = idClass == 0 ? null : idClass
                 };
 
                 var result = await _repository.CreateSignUpCodeAsync(signUpCode);
