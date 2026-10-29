@@ -17,9 +17,12 @@ namespace GetInLineSchool.Services
                 if (existsPair < 1)
                     return (StatusCodes.NotFound, "This class is not yours.");
 
-                var studentsExist = await _repository.CheckStudentsExistAsync(request);
-                if (studentsExist > 0)
-                    return (StatusCodes.BadRequest, "Students are already created for this class.Now you can add only single students.");
+                if (request.Names.Count > 1)//first are added multiple students but after that can be added one by one
+                {
+                    var studentsExist = await _repository.CheckStudentsExistAsync(request);
+                    if (studentsExist > 0)
+                        return (StatusCodes.BadRequest, "Students are already created for this class.Now you can add only single students.");
+                }
 
                 var classResult = await _repository.GetSchoolIdByClassIdAsync(request.IDClass);
                 if (classResult == null)
@@ -30,13 +33,15 @@ namespace GetInLineSchool.Services
                 if (schoolCode == null)
                     return (StatusCodes.NotFound, "School code not found.");
 
+                var countStudents = await _repository.GetCountStudentsInClass(request.IDClass);
                 List<Student> parameters = new List<Student>();
-                int number = 1;
+                int number = countStudents + 1;
+
                 for (int i = 0; i < request.Names.Count; i++)
                 {
                     parameters.Add(new Student
                     {
-                        Username = new StringBuilder().Append(schoolCode).Append(classResult.ClassCode)
+                        Username = new StringBuilder().Append('s').Append(schoolCode).Append(classResult.ClassCode)
                         .Append(request.Names[i]).Append(number).ToString(),
                         IDClass = request.IDClass
                     });
