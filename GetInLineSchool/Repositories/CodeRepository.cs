@@ -112,7 +112,7 @@ namespace GetInLineSchool.Repositories
                     return null;
             }
         }
-        //sign up code meyhods
+        //sign up code methods
         public async Task<short> GetSchoolIdAsync(string id)
         {
             using var connection = dbConnection;
@@ -125,8 +125,8 @@ namespace GetInLineSchool.Repositories
         {
             using var connection = dbConnection;
 
-            string sql = @"INSERT INTO SignUpCodes(Code,IDSchool,IDTeacher,CodeType)" +
-                "VALUES(@Code, @IDSchool, @IDTeacher, @CodeType)";
+            string sql = @"INSERT INTO SignUpCodes(Code,IDSchool,IDTeacher,CodeType,IDClass)" +
+                "VALUES(@Code, @IDSchool, @IDTeacher, @CodeType, @IDClass)";
 
             return await connection.ExecuteAsync(sql, code);
         }
@@ -146,6 +146,22 @@ namespace GetInLineSchool.Repositories
                             ))";
 
             return await connection.ExecuteScalarAsync<int>(sql, new { IDSchool = idSchool, CodeType = codeType });
+        }
+        public async Task<int> IsThereActiveClassCodeAsync(int? idClass, byte codeType)
+        {
+            using var connection = dbConnection;
+
+            string sql = @"SELECT COUNT(*) FROM SignUpCodes WHERE IDClass = @IDClass AND CodeType=@CodeType AND ExpirationDate > DATEDIFF_BIG(
+                            SECOND,
+                            '2025-01-01',
+                            CONVERT(
+                                DATETIME2,
+                                SYSUTCDATETIME()
+                                AT TIME ZONE 'UTC'
+                                AT TIME ZONE 'E. Europe Standard Time'
+                            ))";
+
+            return await connection.ExecuteScalarAsync<int>(sql, new { IDClass = idClass, CodeType = codeType });
         }
 
         public async Task<bool> IsVerifiedUserAsync(string idTeacher)
