@@ -70,6 +70,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("Teacher", p => p.RequireClaim(ClaimTypes.Role, "4"));
     options.AddPolicy("Student", p => p.RequireClaim(ClaimTypes.Role, "5"));
     options.AddPolicy("TeacherOrDirector", p => p.RequireClaim(ClaimTypes.Role, "2", "3"));
+    options.AddPolicy("Queue", p => p.RequireClaim(ClaimTypes.Role, "2", "3", "5"));
 });
 
 builder.Services.AddFluentValidationAutoValidation();
