@@ -1,4 +1,4 @@
-namespace GetInLineSchool.DTOs.Response
+﻿namespace GetInLineSchool.DTOs.Response
 {
     public class LoginResponse
     {
