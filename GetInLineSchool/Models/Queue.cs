@@ -6,10 +6,10 @@
         public short IDSchool { get; set; }
         public int? IDTeacher { get; set; }
         public int? IDStudent { get; set; }
-        public int IDClass { get; set; }
+        public int? IDClass { get; set; }
         public string Subject { get; set; }
         public short Duration { get; set; }
-        public int Code { get; set; }
+        public string Code { get; set; }
         public long Date { get; set; }
     }
 }
