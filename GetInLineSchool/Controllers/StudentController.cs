@@ -26,6 +26,7 @@ namespace GetInLineSchool.Controllers
 
         //Student created password and email
         [HttpPut]
+        [Authorize]
         public async Task<IActionResult> SetStudentDataAsync([FromBody] AtivateStudentRequest request)
         {
             var result = await _service.SetStudentDataAsync(request);
